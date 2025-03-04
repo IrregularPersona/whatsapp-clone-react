@@ -41,7 +41,12 @@ def create_app(config_name='development'):
     CORS(app, resources={
         r"/api/*": {
             "origins": config.ALLOWED_ORIGINS,
-            "supports_credentials": true
+            "supports_credentials": True,
+            "allow_headers": {
+                "Content-Type",
+                "Authorization",
+                "Access-Control-Allow-Credentials"
+            }
         }
     })
 
