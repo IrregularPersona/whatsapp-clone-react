@@ -1,10 +1,10 @@
-from ..models import GlobalMessages, DirectMessage, GroupMessage
+from ..models.messages import GlobalMessage, DirectMessage 
 from ..extensions import db
 from datetime import datetime
 
 class MessageService:
     def create_global_message(self, user_id, text):
-        message = GlobalMessages(
+        message = GlobalMessage(
             text=text,
             user_id=user_id,
             timestamp=datetime.utcnow()
@@ -15,8 +15,8 @@ class MessageService:
         return message
     
     def get_global_message(self, limit=50):
-        return GlobalMessages.query.order_by(
-            GlobalMessages.timestamp.desc()
+        return GlobalMessage.query.order_by(
+            GlobalMessage.timestamp.desc()
         ).limit(limit).all()
 
     def create_direct_message(self, sender_id, recipient_id, message):

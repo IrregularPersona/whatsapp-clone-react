@@ -33,35 +33,35 @@ def create_app(config_name='development'):
     migrate.init_app(app, db)
 
     limiter = Limiter (
-        app,
         key_func=get_remote_address,
         default_limits=["100 per day", "30 per hour"]
     )
+
+    limiter.init_app(app)
 
     CORS(app, resources={
         r"/api/*": {
             "origins": config.ALLOWED_ORIGINS,
             "supports_credentials": True,
-            "allow_headers": {
+            "allow_headers": [
                 "Content-Type",
                 "Authorization",
                 "Access-Control-Allow-Credentials"
-            }
+            ],
+            "methods": ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
         }
     })
 
     login_manager.login_view = 'auth.login'
-
-    from .routes import (
-        auth_blueprint,
-        chat_blueprint,
-        group_blueprint,
-        message_blueprint
-    )
+    
+    from .routes.auth import auth_blueprint
+    #from .routes.chat import chat_blueprint
+    from .routes.messages import message_blueprint
+    #from .routes.group import group_blueprint
 
     app.register_blueprint(auth_blueprint, url_prefix='/api/auth')
-    app.register_blueprint(chat_blueprint, url_prefix='/api/chat')
-    app.register_blueprint(group_blueprint, url_prefix='/api/groups')
+    #app.register_blueprint(chat_blueprint, url_prefix='/api/chat')
+    #app.register_blueprint(group_blueprint, url_prefix='/api/groups')
     app.register_blueprint(message_blueprint, url_prefix='/api/messages')
 
     register_error_handlers(app)
