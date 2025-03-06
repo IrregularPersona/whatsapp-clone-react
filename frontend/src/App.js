@@ -16,7 +16,7 @@ function App() {
             <Route path="/login" element={<Login />}/>
             <Route path="/register" element={<Register />}/>
             <Route path="/chat" element={<GlobalChat />}/>
-            <Route path="/" element={<Navigate to="/login" replace />}/>
+            {/* <Route path="/" element={<Navigate to="/login" replace />}/> */}
           </Routes>
         </div>
       </Router>

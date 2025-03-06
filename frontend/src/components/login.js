@@ -35,7 +35,7 @@ function Login()
                 <input
                     type='password'
                     value={password}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     required
                 />
