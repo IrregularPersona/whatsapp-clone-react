@@ -7,7 +7,7 @@ const api = axios.create({
     withCredentials: true
 });
 
-api.interceptors.request,use((config) => {
+api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers['Authorization'] = 'Bearer ${token}';
@@ -28,6 +28,6 @@ export const getGlobalMessages = () => {
     return api.get('/messages/global');
 };
 
-export const sendGlobalMessage = (message) => {
+export const sendGlobalMessage = (text, message) => {
     return api.post('/messages/global', { text, message });
 };
