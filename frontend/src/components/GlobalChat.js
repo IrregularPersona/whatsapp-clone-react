@@ -2,14 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getGlobalMessages, sendGlobalMessage } from '../services/api';
 import SocketService from '../services/socket';
+import { useNavigate } from 'react-router-dom';
 
 function GlobalChat() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const { user } = useAuth();
 
-  useEffect(() => {    
+  let navigate = useNavigate();
+
+  useEffect(() => {
     SocketService.connect();
+
+    if(user === null) navigate('/login');
 
     const fetchMessages = async () => {
       try {
