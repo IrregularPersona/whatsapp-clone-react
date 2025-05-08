@@ -32,3 +32,12 @@ def get_global_messages():
             'timestamp' : msg.timestamp.isoformat()
         } for msg in messages
     ])
+
+
+@message_blueprint.route('/test1', methods=['GET'])
+def fr():
+    return jsonify(
+        {
+            'name': 'frfr1'
+        }
+    )
