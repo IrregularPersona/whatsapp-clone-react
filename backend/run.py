@@ -1,8 +1,13 @@
 import os
+import sys
 from dotenv import load_dotenv
-from app import create_app
-from app.extensions import db, socketio
-from config import get_config
+
+# Add the parent directory to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from backend.app import create_app
+from backend.app.extensions import db, socketio
+from backend.config import get_config
 
 load_dotenv()
 

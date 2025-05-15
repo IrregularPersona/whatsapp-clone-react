@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify, make_response
-from flask_login import login_user, logout_user, login_required, current_user
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from ..services.auth_service import AuthService
 from ..extensions import bcrypt, db
+from ..models.user import User
 
 auth_blueprint = Blueprint('auth', __name__)
 auth_service = AuthService()
@@ -47,12 +47,11 @@ def login():
 
     if user:
         access_token = create_access_token(identity=user.id)
-        login_user(user)
 
         response = make_response(jsonify({
-            'access_token':access_token,
-            'user_id':user.user_id,
-            'username':user.username
+            'access_token': access_token,
+            'user_id': user.user_id,
+            'username': user.username
         }), 200)
 
         response.set_cookie('access_token', access_token,
@@ -67,10 +66,8 @@ def login():
     }), 401
 
 @auth_blueprint.route('/logout', methods=['POST'])
-@login_required
-@jwt_required
+@jwt_required()
 def logout():
-    logout_user()
     response = make_response(jsonify({
         'message' : 'Logged out successfully'
     }), 200)
@@ -80,8 +77,7 @@ def logout():
     return response
 
 @auth_blueprint.route('/me', methods=['GET'])
-@login_required
-@jwt_required
+@jwt_required()
 def get_current_user():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)

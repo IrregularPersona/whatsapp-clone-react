@@ -1,13 +1,13 @@
 import random
 import uuid
-from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from ..extensions import db, login_manager
+from ..extensions import db
 from .base import BaseModel
 
-class User(BaseModel, UserMixin, db.Model):
+class User(BaseModel, db.Model):
     __tablename__ = 'users'
 
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     username = db.Column(db.String(150), unique=True, nullable=False, index=True)
     email = db.Column(db.String(255), unique=True, nullable=True)
@@ -64,8 +64,3 @@ class User(BaseModel, UserMixin, db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
-
-@login_manager.user_loader
-def load_user(user_id):
-    """Load user for Flask-Login"""
-    return User.query.get(int(user_id))

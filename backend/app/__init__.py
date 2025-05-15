@@ -6,11 +6,12 @@ from flask_limiter.util import get_remote_address
 from .extensions import (
     db,
     bcrypt,
-    login_manager,
+    jwt,
     socketio,
     migrate
 )
 from config import get_config
+from .database import DatabaseFactory
 
 def create_app(config_name='development'):
     """
@@ -26,13 +27,17 @@ def create_app(config_name='development'):
 
     configure_logging(app)
 
-    db.init_app(app)
+    # Initialize database
+    Session = DatabaseFactory.init_app(app, config)
+    app.config['SQLALCHEMY_SESSION'] = Session
+
+    # Initialize other extensions
     bcrypt.init_app(app)
-    login_manager.init_app(app)
+    jwt.init_app(app)
     socketio.init_app(app)
     migrate.init_app(app, db)
 
-    limiter = Limiter (
+    limiter = Limiter(
         key_func=get_remote_address,
         default_limits=["100 per day", "30 per hour"]
     )
@@ -52,8 +57,6 @@ def create_app(config_name='development'):
         }
     })
 
-    login_manager.login_view = 'auth.login'
-    
     from .routes.auth import auth_blueprint
     #from .routes.chat import chat_blueprint
     from .routes.messages import message_blueprint
@@ -94,4 +97,4 @@ def register_error_handlers(app):
     @app.errorhandler(Exception)
     def unhandled_exception(error):
         app.logger.error(f'Unhandled Exception: {error}')
-        return {'error' : 'An unexpected error occured'}, 500
+        return {'error' : 'An unexpected error occurred'}, 500
