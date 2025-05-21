@@ -18,10 +18,10 @@ function GlobalChat() {
   useEffect(() => {
     SocketService.connect();
 
-    // if (!user) {
-    //   navigate('/login');
-    //   return;
-    // }
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
     const fetchMessages = async () => {
       try {

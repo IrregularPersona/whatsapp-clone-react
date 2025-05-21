@@ -50,7 +50,7 @@ function Navbar() {
                 Global Chat
               </Link>
               <span style={{ color: 'white' }}>
-                {/* Welcome, {user.username} */}
+                Welcome, {user.user_id}
               </span>
               <button
                 onClick={handleLogout}

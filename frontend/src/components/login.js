@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
+
 
 function Login() 
 {
@@ -9,6 +11,13 @@ function Login()
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { login } = useAuth();
+
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            navigate('/chat');
+        }
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

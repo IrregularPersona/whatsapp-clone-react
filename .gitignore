@@ -6,5 +6,6 @@ backend/app/routes/__pycache__
 backend/app/services/__pycache__
 backend/instance/
 /instance/
+/backend/migrations/
 
 backend/*.log

@@ -18,6 +18,8 @@ from .models.user import User
 from .models.messages import GlobalMessage, DirectMessage
 from .models.group import Group, GroupMembership, GroupMessage
 
+from .socket_events import *
+
 def create_app(config_name='development'):
     """
     Application factory to create the app
@@ -39,7 +41,11 @@ def create_app(config_name='development'):
     # Initialize other extensions
     bcrypt.init_app(app)
     jwt.init_app(app)
-    socketio.init_app(app)
+    socketio.init_app(app, 
+                     cors_allowed_origins=config.ALLOWED_ORIGINS,
+                     async_mode='threading',
+                     logger=True,
+                     engineio_logger=True)
     migrate.init_app(app, db)
 
     limiter = Limiter(
@@ -50,7 +56,7 @@ def create_app(config_name='development'):
     limiter.init_app(app)
 
     CORS(app, resources={
-        r"/api/*": {
+        r"/*": {
             "origins": config.ALLOWED_ORIGINS,
             "supports_credentials": True,
             "allow_headers": [
