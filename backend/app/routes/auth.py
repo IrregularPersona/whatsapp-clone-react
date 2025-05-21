@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from ..services.auth_service import AuthService
 from ..extensions import bcrypt, db
@@ -40,30 +40,40 @@ def register():
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = auth_service.authenticate_user(
-        data['username'],
-        data['password']
-    )
-
-    if user:
-        access_token = create_access_token(identity=user.id)
-
-        response = make_response(jsonify({
-            'access_token': access_token,
-            'user_id': user.user_id,
-            'username': user.username
-        }), 200)
-
-        response.set_cookie('access_token', access_token,
-                            httponly=True,
-                            secure=True,
-                            samesite='strict')
-
-        return response
+    current_app.logger.info(f"Login attempt for username: {data.get('username')}")
     
-    return jsonify({
-        'error' : 'Invalid Credentials'
-    }), 401
+    try:
+        user = auth_service.authenticate_user(
+            data['username'],
+            data['password']
+        )
+
+        if user:
+            current_app.logger.info(f"Login successful for user: {user.username}")
+            access_token = create_access_token(identity=user.id)
+
+            response = make_response(jsonify({
+                'access_token': access_token,
+                'user_id': user.user_id,
+                'username': user.username
+            }), 200)
+
+            response.set_cookie('access_token', access_token,
+                                httponly=True,
+                                secure=True,
+                                samesite='strict')
+
+            return response
+        
+        current_app.logger.warning(f"Login failed for username: {data.get('username')}")
+        return jsonify({
+            'error' : 'Invalid Credentials'
+        }), 401
+    except Exception as e:
+        current_app.logger.error(f"Login error: {str(e)}")
+        return jsonify({
+            'error': 'An error occurred during login'
+        }), 500
 
 @auth_blueprint.route('/logout', methods=['POST'])
 @jwt_required()

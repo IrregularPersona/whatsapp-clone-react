@@ -13,6 +13,11 @@ from .extensions import (
 from config import get_config
 from .database import DatabaseFactory
 
+from .models.base import BaseModel
+from .models.user import User
+from .models.messages import GlobalMessage, DirectMessage
+from .models.group import Group, GroupMembership, GroupMessage
+
 def create_app(config_name='development'):
     """
     Application factory to create the app

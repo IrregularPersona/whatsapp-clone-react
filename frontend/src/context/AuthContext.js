@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) =>
     {
         try {
             const response  = await loginUser(username, password);
-            const { access_token, user_id, username, loggedUsername } = response.data;
+            const { access_token, user_id, loggedUsername } = response.data;
 
             const userData = { user_id, username: loggedUsername };
 
