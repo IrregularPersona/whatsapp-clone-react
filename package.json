@@ -1,0 +1,45 @@
+{
+  "name": "WhispVault",
+  "version": "0.1.0",
+  "description": "An E2EE Chatting App made with Electron",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "webpack --config webpack.config.js",
+    "dev": "pnpm run build && concurrently \"pnpm run start\" \"webpack --config webpack.config.js --watch\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@radix-ui/react-tooltip": "^1.2.7",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "electron": "^29.1.4",
+    "lucide-react": "^0.358.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "tailwind-merge": "^2.1.0",
+    "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "autoprefixer": "^10.4.16",
+    "babel-loader": "^9.1.3",
+    "concurrently": "^8.2.2",
+    "css-loader": "^6.8.1",
+    "html-webpack-plugin": "^5.6.0",
+    "postcss": "^8.4.31",
+    "postcss-loader": "^7.3.3",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}

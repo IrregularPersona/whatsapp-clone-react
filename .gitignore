@@ -8,4 +8,7 @@ backend/instance/
 /instance/
 /backend/migrations/
 
+# the react one
 backend/*.log
+node_modules
+server/.env

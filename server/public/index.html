@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhispVault Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #128C7E;
+        }
+        .data-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .chat-list, .notification-list, .message-list {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .chat-item, .notification-item, .message-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .message-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .message-content {
+            flex-grow: 1;
+        }
+        .message-sender {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .message-time {
+            color: #666;
+            font-size: 0.8em;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhispVault Test Client</h1>
+        
+        <!-- Login Form -->
+        <div id="loginSection">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button onclick="login()">Login</button>
+            <div id="loginStatus"></div>
+        </div>
+
+        <!-- Data Display Section -->
+        <div id="dataSection" class="data-section">
+            <h2>Welcome, <span id="userName"></span>!</h2>
+            
+            <!-- Chat Sessions -->
+            <h3>Chat Sessions</h3>
+            <div id="chatList" class="chat-list"></div>
+
+            <!-- Notifications -->
+            <h3>Notifications</h3>
+            <div id="notificationList" class="notification-list"></div>
+
+            <!-- Messages -->
+            <h3>Messages</h3>
+            <div id="messageList" class="message-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const statusDiv = document.getElementById('loginStatus');
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ identifier: email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUser = data.user;
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = 'Login successful!';
+                    
+                    // Show data section
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('dataSection').style.display = 'block';
+                    document.getElementById('userName').textContent = currentUser.displayName;
+
+                    // Load data
+                    loadChatSessions();
+                    loadNotifications();
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = data.error || 'Login failed';
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = 'Error connecting to server';
+            }
+        }
+
+        async function loadChatSessions() {
+            try {
+                const response = await fetch(`${API_URL}/chats/sessions?uuid=${currentUser.uuid}`);
+                const sessions = await response.json();
+                
+                const chatList = document.getElementById('chatList');
+                chatList.innerHTML = sessions.map(session => `
+                    <div class="chat-item">
+                        <div>Chat with: ${session.user1_display_name === currentUser.displayName ? 
+                            session.user2_display_name : session.user1_display_name}</div>
+                        <button onclick="loadMessages(${session.id})">View Messages</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading chat sessions:', error);
+            }
+        }
+
+        async function loadNotifications() {
+            try {
+                const response = await fetch(`${API_URL}/notifications?uuid=${currentUser.uuid}`);
+                const notifications = await response.json();
+                
+                const notificationList = document.getElementById('notificationList');
+                notificationList.innerHTML = notifications.map(notification => `
+                    <div class="notification-item">
+                        <div>${notification.type} from ${notification.sender_display_name}</div>
+                        <div>Status: ${notification.status}</div>
+                        ${notification.status === 'pending' ? `
+                            <button onclick="updateNotification(${notification.id}, 'accepted')">Accept</button>
+                            <button onclick="updateNotification(${notification.id}, 'declined')">Decline</button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        async function loadMessages(chatSessionId) {
+            try {
+                const response = await fetch(`${API_URL}/chats/messages?chatSessionId=${chatSessionId}`);
+                const messages = await response.json();
+                
+                const messageList = document.getElementById('messageList');
+                messageList.innerHTML = messages.map(message => `
+                    <div class="message-item">
+                        <span class="message-sender">${message.sender_display_name}:</span>
+                        <span class="message-content">${message.encrypted_content}</span>
+                        <span class="message-time">${new Date(message.created_at).toLocaleTimeString()}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        async function updateNotification(notificationId, status) {
+            try {
+                const response = await fetch(`${API_URL}/notifications/${notificationId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    loadNotifications();
+                }
+            } catch (error) {
+                console.error('Error updating notification:', error);
+            }
+        }
+    </script>
+</body>
+</html> 
